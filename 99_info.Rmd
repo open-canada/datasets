@@ -1,0 +1,83 @@
+
+
+
+# Info {data-icon="fa-info-circle"}
+
+
+## .... Upper Row {.tabset .tabset-fade }
+
+
+<!-- title: "Open Canada Vital Statistics Tracker" -->
+<!-- subtitle: "Open Source Tool for Visualizing Open Data" -->
+
+
+### About the App
+
+
+
+
+#### Technical details
+
+
+
+*Name: * Open Canada Data Processor 
+*Type: * Web Application. Compatible with mobile devices   
+*URL:* https://open-canada.github.io/Apps/data
+*Code Source:* https://github.com/open-canada/datasets    
+*Data Source:* [Statistics Canada, Canadian Vital Statistics - Death database (CVSD)](https://www23.statcan.gc.ca/imdb/p2SV.pl?Function=getSurvey&SDDS=3233)   
+*Licenses: * [Open Government license - Canada](http://open.canada.ca/en/open-government-licence-canada) (data), [MIT license](https://github.com/open-canada/vitals/blob/main/LICENSE) (code)
+
+
+#### Description
+
+
+### Sample of Databases
+
+#### StatCan CANSIM Tables
+
+
+("Try: 13-10-0768-01, 1310076801, 13-10-0792-01")
+
+Examples: 
+"13-10-0768-01"
+"13-10-0792-01"
+"13-10-0783-01"
+
+"13-10-0783-01"
+
+"13-10-0427-01"
+"13-10-0395-01"
+
+"13-10-0415-01"
+"13-10-0418-01"
+"13-10-0415-01"
+
+"13-26-0003" # Preliminary dataset on confirmed cases of COVID-19
+
+
+
+#### Open Ontario API Tables
+
+
+
+res <-resource_show(id ="274b819c-5d69-4539-a4db-f2950794138c")
+res$url
+destfile <- "Hospitalizations by vaccination status.csv"
+
+#### Other from URL
+
+##### csv 
+
+https://health-infobase.canada.ca/src/data/covidLive/vaccination-coverage-byAgeAndSex-overTimeDownload.csv 
+
+"https://github.com/open-canada/datasets/raw/main/statcan/13100810.csv"
+
+
+##### 
+
+https://www150.statcan.gc.ca/n1/tbl/csv/13100810-eng.zip 
+
+https://github.com/open-canada/datasets/raw/main/statcan/13100810.Rds", 
+
+
+

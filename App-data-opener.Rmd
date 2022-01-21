@@ -1,0 +1,306 @@
+---
+title: "Open Canada Data!"
+github-repo: open-canada/vitals
+url: https\://o-canada.shinyapps.io/vitals/data.Rmd
+license: MIT 
+# favicon: "R4GC.ico"
+output:
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    social: menu
+    source_code: https://github.com/open-canada/datasets
+    vertical_layout: fill # scroll 
+runtime: shiny
+---
+
+
+```{r -globals, include=F}
+knitr::opts_chunk$set(echo = F)
+source ("00_common.R")
+library(dplyr)
+library(ckanr)
+library(cansim)
+
+```
+
+
+# Search criteria: {.sidebar data-width=210}
+
+```{r}
+
+# selectInput
+radioButtons("data.source", "Choose data origin:",
+             choices = c("Upload file", "URL",
+                         "StatCan Table", "Open Ontario"
+                         # "URL(.csv)", "URL(.zip)", "URL(.Rds)"
+                         ),
+             selected = "StatCan Table", inline=T) 
+
+actionButton("run", "Run!", class = "btn-success",width = "100%")
+
+```
+
+
+```{r r.dt}
+
+# . Select columns ----
+
+renderUI({
+  # req(r.dt())
+  selectInput( "columns1", "Select columns :", r.dt() %>% names, 
+               r.dt() %>% names,
+               # c("Date", "val_norm", "Characteristics"),
+               multiple = T)  
+})
+
+r.dt1 <- reactive({
+  req(r.dt())
+  # req(input$columns1)
+  
+    dt1 <- r.dt()  %>% .[, input$columns1, with=F ] 
+  # r.dt()  %>% select(input$columns1)   
+  # %>%
+             # mutate_if(is.factor, as.character) 
+
+  # fread(input$file1$datapath, stringsAsFactors = T) [ , ..input$columns1]
+})
+
+
+```
+
+
+# Search 
+
+## ...
+
+### Search Open Canada databases by keyword
+
+```{r r.dt0}
+
+
+textInput("stat.search", "Search keyword", "vital", width="100%")
+h6("Try: Vital, Covid, Hospital, Vaccin")
+
+
+checkboxInput("saveSearch", "Save search results in .csv file")
+
+r.dt0  <- reactive({
+
+  req(input$run)
+  dt0 <- search_cansim_cubes(input$stat.search) %>% setDT()
+
+
+  dt0
+})
+
+renderDataTable({
+  datatable.title( r.dt0() )
+})
+
+
+
+
+# ckanr_setup(url = "https://data.ontario.ca/")
+# res <- resource_search(q = "name:Vaccin", as = "table") 
+# res$count #7
+# r <- res$results %>% setDT
+# 
+# 
+# r <- res$results
+# 
+# 
+# fwrite(res$results, "on-vaccine.csv", sep="\t")
+# 
+# res$results$package_id
+# 
+# res$results$id # = res$results$resource_id
+# r$original_url
+# r$name
+# r$name_translated
+# 
+# r$description
+# r$description_translated
+# 
+# r$created
+# r$publically_available_date
+# r$data_range_start
+# r$data_range_end
+# 
+# 
+# 
+# 
+# res <-resource_show(id ="274b819c-5d69-4539-a4db-f2950794138c")
+# res$url
+# destfile <- "Hospitalizations by vaccination status.csv"
+# curl::curl_download(res$url, destfile)
+
+```
+
+
+<!-- # Load (LTE) -->
+
+# Load
+
+
+
+
+
+<!-- # Visualize  -->
+
+
+## LEVEL 2 ........ {.tabset .tabset-fade }
+
+### Load, Subset and Save
+
+
+```{r}
+
+# . Select a file ----
+
+renderUI({
+  
+  switch(
+    input$data.source, 
+    
+    "Upload file" = 
+      fileInput(
+        "file1",  h6("Upload CSV file:"), multiple = F, width="100%",
+        accept = c("text/csv",
+                   "text/comma-separated-values,text/plain",
+                   ".csv")),
+    
+    "StatCan Table" = 
+      textInput("data.id", "Enter StatCan table number:", "13-10-0810-01", width="100%"),
+    
+    "Open Ontario" = 
+      textInput("data.id", "Enter Ontario table number:", "274b819c-5d69-4539-a4db-f2950794138c", width="100%"),
+    
+    textInput("data.id", "Enter URL for .csv, .xls or zip:", "https://health-infobase.canada.ca/src/data/covidLive/vaccination-coverage-byAgeAndSex-overTimeDownload.csv", width="100%")
+  )
+})
+
+
+r.dt  <- reactive({
+
+  switch (
+    input$data.source,
+          "uploaded" = {
+            req(input$file1)
+            fread(input$file1$datapath, stringsAsFactors = T)
+          }
+  )
+  
+  # dt <- cansim::get_cansim(input$stat.table) %>% setDT(dt)
+  # dt[, Date := ymd(Date)]; 
+  # 
+  # dt$Date %>% max(na.rm = T)
+  # dt$Date %>% min(na.rm = T)
+  # dt %>% names()
+  # dt$Date %>% unique()
+  # dt$Characteristics %>% unique()
+  # 
+  # dt
+})
+
+
+renderDataTable({
+  datatable.title( r.dt1() )
+})
+
+```
+
+
+### Summarize
+
+#### Stats
+```{r}
+
+
+renderPrint({  
+  # summary( r.dt1()  ) 
+  
+  summary( r.dt1() %>%
+             mutate_if(is.character, as.factor) %>%
+             mutate_if(is.integer, as.factor)
+  )
+  
+  
+})
+```
+
+#### Structure
+```{r}
+renderPrint({  str(r.dt1())  })
+
+  # dt$Date %>% max(na.rm = T)
+  # dt$Date %>% min(na.rm = T)
+  # dt %>% names()
+  # dt$Date %>% unique()
+  # dt$Characteristics %>% unique()
+  
+
+```
+
+
+
+# Visualize
+
+
+## .... Upper Row {.tabset .tabset-fade }
+
+### Overview
+
+### Multi-dimensional plot
+
+<!-- ### Summary plot  -->
+
+### Correlations plot
+
+### Interactive time-series plot
+
+### Interactive graph plot
+
+
+
+
+
+
+
+
+
+```{r 99_info.Rmd, child = '99_info.Rmd'}
+```
+
+# Debug 
+
+## ...
+
+### Debug window
+
+
+
+#### Input
+```{r print input1}
+# renderPrint( paste0("Shiny is Running: ", shiny::isRunning() ) )
+renderPrint( input )
+# renderPrint( input$date )
+# renderPrint( input$period )
+# renderPrint( ymd(input$period) )
+# renderPrint( ymd(input$period) %>% min)
+# renderPrint( ymd(input$period) %>% max)
+# renderPrint( paste0("region1 ", region1))
+# renderPrint( paste0("cause1 ", cause1))
+
+# cat("r.dtAll()")
+# renderPrint( r.dtAll() %>% print )
+cat("r.dt0()")
+renderPrint( r.dt0() %>% print )
+
+```
+
+
+
+```{r STOP_HERE, include=FALSE}
+knitr::knit_exit()
+```
+
